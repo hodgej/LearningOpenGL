@@ -21,7 +21,7 @@ const char* fragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
 "void main()\n"
 "{\n"
-"   FragColor = vec4(0.5f, 0.2f, 1.0f, 1.0f);\n"
+"  FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
 
 
@@ -161,8 +161,7 @@ int main() {
 
 	unsigned int EBO;
 	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 
 
 	unsigned int VBO; // buffer id int for our VBO - Vertex Buffer Object. Differnet VBO's could store different types of vertex data (eg. 1 for color, 1 for pos), or not. Just saying.
@@ -193,6 +192,14 @@ int main() {
 	glGenBuffers(1, &VBO); // generate new buffer and assigns VBO it's reference ID (int). the "1" means only one buffer id is being generated.
 	glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind GL_ARRAY_BUFFER to our vertex buffer. You can only have one buffer bound to GL_ARRAY_BUFFER at a time. (You can only work with them one at a time, but that's not to say you can't have multiple buffer objects working with the array buffer)
 										// Now GL_ARRAY_BUFFER is associated with our buffer of if VBO
+										// 
+										// 	
+
+	// Bind this after binding the VAO so the EBO is apart of the VAO's state. 
+	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 	// copy our vertex data into the buffer's memory; this puts our data in GPU memory as managed by our buffer VBO
 	// GL_STATIC Draw is good for data that is set only once and used many times.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -222,6 +229,9 @@ int main() {
 	
 
 	std::cout << "Done!" << std::endl;
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 	while (!glfwWindowShouldClose(window)) {
 		// Each iteration of this loop is called a frame
 
@@ -240,13 +250,14 @@ int main() {
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
-
+		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);  // swap the color buffer and render it's output on screen
 						   // Two buffers are used; one for the current image, and one for the next;
 						  // This is to avoid flickering, as the image is rendered left-to-right. This allows you do render out of view while the other buffer displays the previous frame, then switch when ready.
 		glfwPollEvents();// check for input and call any registered callback functions 
 		processInput(window);
+
 		
 	}
 
